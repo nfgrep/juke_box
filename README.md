@@ -1,4 +1,6 @@
-# README
+# Juke Box
+
+This is a thingy to play music in the common room
 
 This README would normally document whatever steps are necessary to get the
 application up and running.
