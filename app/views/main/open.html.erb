@@ -1,8 +1,0 @@
-<h1> Enter a song to play </h1>
-<%= form_with method: :post do |form| %>
-  <%= form.label :url_to_open, "Song name and/or artist:" %>
-  <%= form.text_field :url_to_open %>
-  <%= form.submit "Open" %>
-<% end %>
-
-<%= button_to "Close", action: "close" %>

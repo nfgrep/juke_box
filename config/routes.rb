@@ -4,8 +4,7 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "articles#index"
   #
-  root to: redirect("open")
-  get "open", to: "main#open_url_page"
-  post "open", to: "main#open_url_action"
-  post "close", to: "main#close"
+  root to: "jukebox#index"
+  post "/", to: "jukebox#play"
+  post "/stop", to: "jukebox#stop"
 end

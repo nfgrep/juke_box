@@ -1,0 +1,8 @@
+<h1> Enter a song to play </h1>
+<%= form_with method: :post do |form| %>
+  <%= form.label :query_string, "Song name and/or artist:" %>
+  <%= form.text_field :query_string %>
+  <%= form.submit "Play" %>
+<% end %>
+
+<%= button_to "Stop", action: "stop" %>
