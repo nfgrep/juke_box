@@ -9,8 +9,7 @@ class JukeboxController < ApplicationController
     query_string = params[:query_string]
 
     kill_process()
-    $pgid = spawn_pgroup_detached("yt /#{query_string}, 1")
-    puts "PGID: ------- #{$pgid}"
+    spawn_pgroup_detached("yt /#{query_string}, 1")
 
     redirect_to action: "index"
   end
@@ -23,10 +22,12 @@ class JukeboxController < ApplicationController
   private
 
   def kill_process()
-    if $pgid
-      puts "--- Killing #{$pgid}"
-      Process.kill("KILL", -$pgid)
-      $pgid = nil
+    pgid = Rails.cache.read(:pgid)
+    puts "---- Got from cache: #{pgid}"
+    if pgid
+      puts "--- Killing #{pgid}"
+      Process.kill("KILL", -pgid)
+      Rails.cache.delete(:pgid)
     else
       #render plain: "No process to close"
       puts "--- No Process to close"
@@ -37,7 +38,8 @@ class JukeboxController < ApplicationController
     pid = Process.spawn(command, :pgroup=>true)
     pgid = Process.getpgid(pid)
     Process.detach(pgid)
-    return pgid
+    puts "---- Writing to cache: #{pgid}"
+    Rails.cache.write(:pgid, pgid)
   end
 
 end
