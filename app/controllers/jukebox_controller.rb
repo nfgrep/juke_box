@@ -19,7 +19,28 @@ class JukeboxController < ApplicationController
     redirect_to action: "index"
   end
 
+  def vol_up
+    new_vol = current_volume() + 5
+    set_volume(new_vol)
+    redirect_to action: "index"
+  end
+
+  def vol_down
+    new_vol = current_volume - 5
+    set_volume(new_vol)
+    redirect_to action: "index"
+  end
+
   private
+
+  def set_volume(vol)
+    `amixer sset Master #{vol}%`
+  end
+
+  def current_volume()
+    out = `amixer sget Master`
+    out.split("Left:").last.split("%").first.split("[").last.to_i
+  end
 
   def kill_process()
     pgid = Rails.cache.read(:pgid)
