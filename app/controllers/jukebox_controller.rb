@@ -3,6 +3,7 @@ require 'open3'
 class JukeboxController < ApplicationController
   def index
     #render "index"
+    @volume = current_volume()
   end
   
   def play
@@ -19,16 +20,9 @@ class JukeboxController < ApplicationController
     redirect_to action: "index"
   end
 
-  def vol_up
-    new_vol = current_volume() + 5
+  def set_vol()
+    new_vol = params[:volume]
     set_volume(new_vol)
-    redirect_to action: "index"
-  end
-
-  def vol_down
-    new_vol = current_volume - 5
-    set_volume(new_vol)
-    redirect_to action: "index"
   end
 
   private

@@ -7,6 +7,8 @@
 
 <%= button_to "Stop", action: "stop" %>
 
-<%= button_to "Vol up", action: "vol_up" %>
-
-<%= button_to "Vol down", action: "vol_down" %>
+<%= form_with url: "/set_vol", method: :post do |f| %>
+  <%= f.label :volume, "Volume " %>
+  <%= f.range_field :volume, :value => @volume, :in => 0..100, :step => 1 %>
+  <%= f.submit "Sumbit" %>
+<% end %>
