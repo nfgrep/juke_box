@@ -56,20 +56,12 @@ class JukeboxController < ApplicationController
   end
 
   def kill_all()
-    pid = Process.fork
-    if pid.nil? then
-      # in child
-
+    Thread.new do |thr|
       # Kill all processes that were enqueued
       kill_cached_pgroup(:pgid)
 
       # Kill all processes that were started one-shot
       kill_cached_pgroup(:oneshot_pgid)
-
-      Process.exit!(true)
-    else
-      # parent
-      Process.detach(pid)
     end
   end
 
