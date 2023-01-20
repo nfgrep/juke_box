@@ -5,7 +5,14 @@
   <%= form.submit "Play" %>
 <% end %>
 
+<%= form_with url: "/enqueue", method: :post do |form| %>
+  <%= form.label :query_string, "Song name and/or artist:" %>
+  <%= form.text_field :query_string %>
+  <%= form.submit "Enqueue" %>
+<% end %>
+
 <%= button_to "Stop", action: "stop" %>
+
 
 <%= form_with url: "/set_vol", method: :post do |f| %>
   <%= f.label :volume, "Volume " %>

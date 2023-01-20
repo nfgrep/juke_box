@@ -1,34 +1,52 @@
 require 'open3'
 
+require_relative("../lib/yt_search")
+
 class JukeboxController < ApplicationController
   def index
-    #render "index"
     @volume = current_volume()
   end
   
   def play
     query_string = params[:query_string]
+    search_and_play(query_string)
+    redirect_to action: "index"
+  end
 
-    kill_process()
-    spawn_pgroup_detached("yt /#{query_string}, 1")
-
+  def enqueue()
+    query_string = params[:query_string]
+    PlayVideoJob.perform_later(query_string)
     redirect_to action: "index"
   end
 
   def stop
-    kill_process()
+    kill_pgroup()
     redirect_to action: "index"
   end
 
   def set_vol()
     new_vol = params[:volume]
     set_volume(new_vol)
+    redirect_to action: "index"
   end
 
   private
 
+  def search_and_play(query)
+    # Search for video, grab first result
+    video = YtSearch.search(query, 1).first
+
+    puts "Playing one-shot video with mpv..."
+    url = video["url"] + "&vq=small"
+    puts "URL of video: #{url}"
+    pid = Process.spawn("yt-dlp -o - '#{url}' | mpv -", pgroup: true)
+    Rails.cache.write(:pgid, Process.getpgid(pid))
+    Process.detach(pid)
+  end
+
   def set_volume(vol)
-    `amixer sset Master #{vol}%`
+    pid = Process.spawn("amixer sset Master #{vol}%")
+    Process.detach(pid) # Assuming it exits here
   end
 
   def current_volume()
@@ -36,25 +54,18 @@ class JukeboxController < ApplicationController
     out.split("Left:").last.split("%").first.split("[").last.to_i
   end
 
-  def kill_process()
-    pgid = Rails.cache.read(:pgid)
-    puts "---- Got from cache: #{pgid}"
-    if pgid
-      puts "--- Killing #{pgid}"
-      Process.kill("KILL", -pgid)
-      Rails.cache.delete(:pgid)
+  def kill_pgroup()
+    pid = Process.fork
+    if pid.nil? then
+      # in child
+      pgid = Rails.cache.read(:pgid)
+      if pgid
+        Process.kill("KILL", -pgid)
+      end
+      Process.exit!(true)
     else
-      #render plain: "No process to close"
-      puts "--- No Process to close"
+      # parent
+      Process.detach(pid)
     end
   end
-
-  def spawn_pgroup_detached(command)
-    pid = Process.spawn(command, :pgroup=>true)
-    pgid = Process.getpgid(pid)
-    Process.detach(pgid)
-    puts "---- Writing to cache: #{pgid}"
-    Rails.cache.write(:pgid, pgid)
-  end
-
 end
