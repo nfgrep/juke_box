@@ -1,6 +1,7 @@
 require 'open3'
 
 require_relative("../lib/yt_search")
+require_relative("../lib/video_player")
 
 class JukeboxController < ApplicationController
   def index
@@ -39,8 +40,8 @@ class JukeboxController < ApplicationController
     puts "Playing one-shot video with mpv..."
     url = video["url"] + "&vq=small"
     puts "URL of video: #{url}"
-    pid = Process.spawn("yt-dlp -o - '#{url}' | mpv -", pgroup: true)
-    Rails.cache.write(:pgid, Process.getpgid(pid))
+    pid = Process.spawn(VideoPlayer.cmd(url), pgroup: true)
+    Rails.cache.write(:oneshot_pgid, Process.getpgid(pid))
     Process.detach(pid)
   end
 
@@ -61,6 +62,11 @@ class JukeboxController < ApplicationController
       pgid = Rails.cache.read(:pgid)
       if pgid
         Process.kill("KILL", -pgid)
+      end
+
+      oneshot_pgid = Rails.cache.read(:oneshot_pgid)
+      if oneshot_pgid
+        Process.kill("KILL", -oneshot_pgid)
       end
       Process.exit!(true)
     else

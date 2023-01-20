@@ -1,6 +1,7 @@
 require 'open3'
 
 require_relative("../lib/yt_search")
+require_relative("../lib/video_player")
 
 class PlayVideoJob < ApplicationJob
   queue_as :default
@@ -13,7 +14,7 @@ class PlayVideoJob < ApplicationJob
     url = video["url"] + "&vq=small"
     puts "URL of video: #{url}"
 
-    pid = Process.spawn("yt-dlp -o - '#{url}' | mpv -", pgroup: true)
+    pid = Process.spawn(VideoPlayer.cmd(url), pgroup: true)
     puts "PGID of process: #{Process.getpgid(pid)}"
     Rails.cache.write(:pgid, Process.getpgid(pid))
     Process.wait(pid) 
