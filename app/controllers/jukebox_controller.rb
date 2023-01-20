@@ -21,7 +21,7 @@ class JukeboxController < ApplicationController
   end
 
   def stop
-    kill_pgroup()
+    kill_all()
     redirect_to action: "index"
   end
 
@@ -55,23 +55,29 @@ class JukeboxController < ApplicationController
     out.split("Left:").last.split("%").first.split("[").last.to_i
   end
 
-  def kill_pgroup()
+  def kill_all()
     pid = Process.fork
     if pid.nil? then
       # in child
-      pgid = Rails.cache.read(:pgid)
-      if pgid
-        Process.kill("KILL", -pgid)
-      end
 
-      oneshot_pgid = Rails.cache.read(:oneshot_pgid)
-      if oneshot_pgid
-        Process.kill("KILL", -oneshot_pgid)
-      end
+      # Kill all processes that were enqueued
+      kill_cached_pgroup(:pgid)
+
+      # Kill all processes that were started one-shot
+      kill_cached_pgroup(:oneshot_pgid)
+
       Process.exit!(true)
     else
       # parent
       Process.detach(pid)
     end
+  end
+
+  def kill_cached_pgroup(cache_key)
+      pgid = Rails.cache.read(cache_key)
+      if pgid
+        Process.kill("KILL", -pgid)
+        Rails.cache.delete(cache_key)
+      end
   end
 end
