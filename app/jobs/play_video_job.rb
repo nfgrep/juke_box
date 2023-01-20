@@ -6,11 +6,12 @@ require_relative("../lib/video_player")
 class PlayVideoJob < ApplicationJob
   queue_as :default
 
-  # HACK: because we want our jobs to be blocking/synchronous
-  before_perform do |job|
-    while Rails.cache.exist?(:pgid)
-      sleep(10)
-    end
+  semaphore = Mutex.new
+
+  around_perform do |job, block|
+    semaphore.synchronize {
+      block.call
+    }
   end
 
   def perform(query)
@@ -30,8 +31,8 @@ class PlayVideoJob < ApplicationJob
     puts "PGID of process: #{Process.getpgid(pid)}"
     Rails.cache.write(:pgid, Process.getpgid(pid))
     Process.wait(pid) 
-    puts "-------- Finished playing, deleting pgid cache, releasing lock ---------"
-    Rails.cache.delete(:pgid)
+    puts "-------- Finished playing, deleting pgid cache ---------"
+    Rails.cache.delete(:pgid) # This might cause issues?
     
     #end
     
