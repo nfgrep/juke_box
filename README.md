@@ -1,26 +1,17 @@
-# Juke Box
+# Jukebox
 
-This is a thingy to play music in the common room
+This is a thingy to play music videos in the common room
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+### Ruby version
+3.2.0
 
-Things you may want to cover:
+### System dependencies
+These need to be in `$PATH`:
+- [`yt-dlp`](https://github.com/yt-dlp/yt-dlp)
+- [`mpv`](https://github.com/mpv-player/mpv)
 
-* Ruby version
+### Services (job queues, cache servers, search engines, etc.)
+Yup
 
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+### Deployment instructions
+Hosting this on the internet would be verifiably stupid.
