@@ -20,7 +20,7 @@ class JukeboxController < ApplicationController
     redirect_to action: "index"
   end
 
-  def kill()
+  def stop()
     kill_all()
     redirect_to action: "index"
   end
