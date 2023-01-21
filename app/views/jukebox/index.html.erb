@@ -1,21 +1,18 @@
 <h1> Enter a song to play </h1>
-<%= form_with method: :post do |form| %>
-  <%= form.label :query_string, "Song name and/or artist:" %>
-  <%= form.text_field :query_string %>
-  <%= form.submit "Play" %>
-<% end %>
-
 <%= form_with url: "/enqueue", method: :post do |form| %>
-  <%= form.label :query_string, "Song name and/or artist:" %>
+  <%= form.label :query_string, "Query:" %>
   <%= form.text_field :query_string %>
   <%= form.submit "Enqueue" %>
+  <%= form.submit "Play now", formaction: "/play" %>
+  <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
 <% end %>
 
-<%= button_to "Stop", action: "stop" %>
+
+<%= button_to "Kill", action: "kill" %>
 
 
 <%= form_with url: "/set_vol", method: :post do |f| %>
   <%= f.label :volume, "Volume " %>
   <%= f.range_field :volume, :value => @volume, :in => 0..100, :step => 1 %>
-  <%= f.submit "Sumbit" %>
+  <%= f.submit "Submit" %>
 <% end %>

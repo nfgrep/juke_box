@@ -15,26 +15,13 @@ class PlayVideoJob < ApplicationJob
   end
 
   def perform(query)
-    # Search for video, grab first result
-    video = YtSearch.search(query, 1).first
+    puts "Playing queued video..."
+    url = YtSearch.search(query, 1).first["url"]
 
-    puts "Playing queued video with mpv..."
-    url = video["url"] #+ "&vq=small"
-    puts "URL of video: #{url}"
+    VideoPlayer.play_blocking(url) do |pgid|
+      Rails.cache.write(:queued_pgid, pgid)
+    end
 
-    #`#{VideoPlayer.cmd(url)}`
-    #out, err, stat = Open3.capture3(VideoPlayer.cmd(url), pgroup: true)
-    #pid = stat.pid
-    pid = Process.spawn(VideoPlayer.cmd(url), pgroup: true)
-    #IO.popen(VideoPlayer.cmd(url)) do |io|
-
-    puts "PGID of process: #{Process.getpgid(pid)}"
-    Rails.cache.write(:pgid, Process.getpgid(pid))
-    Process.wait(pid) 
-    puts "-------- Finished playing, deleting pgid cache ---------"
-    Rails.cache.delete(:pgid) # This might cause issues?
-    
-    #end
-    
+    Rails.cache.delete(:queued_pgid) # This might cause issues?
   end
 end

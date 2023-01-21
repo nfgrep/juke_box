@@ -20,7 +20,7 @@ class JukeboxController < ApplicationController
     redirect_to action: "index"
   end
 
-  def stop
+  def kill()
     kill_all()
     redirect_to action: "index"
   end
@@ -34,15 +34,10 @@ class JukeboxController < ApplicationController
   private
 
   def search_and_play(query)
-    # Search for video, grab first result
-    video = YtSearch.search(query, 1).first
-
-    puts "Playing one-shot video with mpv..."
-    url = video["url"] + "&vq=small"
-    puts "URL of video: #{url}"
-    pid = Process.spawn(VideoPlayer.cmd(url), pgroup: true)
-    Rails.cache.write(:oneshot_pgid, Process.getpgid(pid))
-    Process.detach(pid)
+    puts "Playing one-shot video..."
+    url = YtSearch.search(query, 1).first["url"]
+    pgid = VideoPlayer.play_async(url)
+    Rails.cache.write(:oneshot_pgid, pgid)
   end
 
   def set_volume(vol)
@@ -58,7 +53,7 @@ class JukeboxController < ApplicationController
   def kill_all()
     Thread.new do |thr|
       # Kill all processes that were enqueued
-      kill_cached_pgroup(:pgid)
+      kill_cached_pgroup(:queued_pgid)
 
       # Kill all processes that were started one-shot
       kill_cached_pgroup(:oneshot_pgid)

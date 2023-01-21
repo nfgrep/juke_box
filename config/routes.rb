@@ -5,9 +5,9 @@ Rails.application.routes.draw do
   # root "articles#index"
   #
   root to: "jukebox#index"
-  post "/", to: "jukebox#play"
+  post "/play", to: "jukebox#play"
   # These are just here because rails cant see actions that arent in a route I guess?
-  post "/stop", to: "jukebox#stop"
+  post "/kill", to: "jukebox#kill"
   post "/enqueue", to: "jukebox#enqueue"
   post "/set_vol", to: "jukebox#set_vol"
 end
