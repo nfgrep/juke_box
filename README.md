@@ -14,4 +14,6 @@ These need to be in `$PATH`:
 Yup
 
 ### Deployment instructions
-Hosting this on the internet would be verifiably stupid.
+You probably shouldn't host this on the internet  
+
+![universally-stupid](https://y.yarn.co/5431db09-e176-490c-adbd-ce608bf4f6c0_text.gif)
