@@ -17,6 +17,7 @@ class PlayVideoJob < ApplicationJob
   def perform(query)
     puts "Playing queued video..."
     url = YtSearch.search(query, 1).first["url"]
+    url = "#{url}&vq=large"
 
     VideoPlayer.play_blocking(url) do |pgid|
       Rails.cache.write(:queued_pgid, pgid)

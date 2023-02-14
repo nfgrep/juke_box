@@ -49,11 +49,7 @@ module YtSearch
         end
       end
 
-      if results.any?
-        return results
-      else
-        return results
-      end
+      results
     end
   end
 end

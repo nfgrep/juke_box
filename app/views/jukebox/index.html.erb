@@ -3,7 +3,6 @@
   <%= form.label :query_string, "Query:" %>
   <%= form.text_field :query_string %>
   <%= form.submit "Enqueue" %>
-  <%= form.submit "Play now", formaction: "/play" %>
   <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
 <% end %>
 
@@ -13,6 +12,7 @@
 
 <%= form_with url: "/set_vol", method: :post do |f| %>
   <%= f.label :volume, "Volume " %>
-  <%= f.range_field :volume, :value => @volume, :in => 0..100, :step => 1 %>
+  <%# <%= f.range_field :volume, :value => @volume, :in => 0..100, :step => 1 %>
+  <%= f.number_field :volume, :value => @volume, :in => 0..100, :step => 1 %>
   <%= f.submit "Submit" %>
 <% end %>

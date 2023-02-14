@@ -8,15 +8,9 @@ class JukeboxController < ApplicationController
     @volume = current_volume()
   end
   
-  def play
-    query_string = params[:query_string]
-    search_and_play(query_string)
-    redirect_to action: "index"
-  end
-
   def enqueue()
     query_string = params[:query_string]
-    PlayVideoJob.perform_later(query_string)
+    PlayVideoJob.perform_later(query_string) unless query_string.empty?
     redirect_to action: "index"
   end
 
@@ -33,13 +27,6 @@ class JukeboxController < ApplicationController
 
   private
 
-  def search_and_play(query)
-    puts "Playing one-shot video..."
-    url = YtSearch.search(query, 1).first["url"]
-    pgid = VideoPlayer.play_async(url)
-    Rails.cache.write(:oneshot_pgid, pgid)
-  end
-
   def set_volume(vol)
     pid = Process.spawn("amixer sset Master #{vol}%")
     Process.detach(pid) # Assuming it exits here
@@ -54,9 +41,6 @@ class JukeboxController < ApplicationController
     Thread.new do |thr|
       # Kill all processes that were enqueued
       kill_cached_pgroup(:queued_pgid)
-
-      # Kill all processes that were started one-shot
-      kill_cached_pgroup(:oneshot_pgid)
     end
   end
 
