@@ -6,6 +6,7 @@ require_relative("../lib/video_player")
 class JukeboxController < ApplicationController
   def index
     @volume = current_volume()
+    @quality = current_quality()
   end
 
   def enqueue()
@@ -25,7 +26,16 @@ class JukeboxController < ApplicationController
     redirect_to action: "index"
   end
 
+  def set_quality()
+    quality = params[:quality]
+    Rails.cache.write(:vid_quality, quality)
+  end
+
   private
+
+  def current_quality()
+    Rails.cache.fetch(:vid_quality) {'medium'}
+  end
 
   def set_volume(vol)
     pid = Process.spawn("amixer sset #{mixer()} #{vol}%")

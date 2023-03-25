@@ -6,13 +6,25 @@
   <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
 <% end %>
 
-
 <%= button_to "Stop", action: "stop" %>
-
 
 <%= form_with url: "/set_vol", method: :post do |f| %>
   <%= f.label :volume, "Volume " %>
   <%# <%= f.range_field :volume, :value => @volume, :in => 0..100, :step => 1 %>
   <%= f.number_field :volume, :value => @volume, :in => 0..100, :step => 1 %>
   <%= f.submit "Submit" %>
+<% end %>
+
+<%= form_with url: "/set_quality", method: :post do |form| %>
+  <%= form.label :quality, "Quality:" %>
+  <%= form.select(:quality, options_for_select([
+    ['240p', 'small'],
+    ['360p', 'medium'],
+    ['480p', 'large'],
+    ['720p', 'hd720'],
+    ['1080', 'hd1080'],
+    ['1440', 'hd1440'],
+    ], @quality)) %>
+  <%= form.submit "Submit" %>
+  <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
 <% end %>

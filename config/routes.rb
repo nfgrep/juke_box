@@ -10,4 +10,5 @@ Rails.application.routes.draw do
   post "/stop", to: "jukebox#stop"
   post "/enqueue", to: "jukebox#enqueue"
   post "/set_vol", to: "jukebox#set_vol"
+  post "/set_quality", to: "jukebox#set_quality"
 end
