@@ -7,7 +7,7 @@ class JukeboxController < ApplicationController
   def index
     @volume = current_volume()
   end
-  
+
   def enqueue()
     query_string = params[:query_string]
     PlayVideoJob.perform_later(query_string) unless query_string.empty?
@@ -28,13 +28,33 @@ class JukeboxController < ApplicationController
   private
 
   def set_volume(vol)
-    pid = Process.spawn("amixer sset Master #{vol}%")
+    pid = Process.spawn("amixer sset #{mixer()} #{vol}%")
     Process.detach(pid) # Assuming it exits here
   end
 
   def current_volume()
-    out = `amixer sget Master`
+    out = `amixer sget #{mixer()}`
     out.split("Left:").last.split("%").first.split("[").last.to_i
+  end
+
+  # TODO: move to a sound/volume module?
+  def mixer()
+    @current_mixer ||= determine_mixer()
+  end
+
+  def determine_mixer()
+    # When executed via systemd, we get Headphone, otherwise we usually get Master
+    out, err, stat = Open3.capture3("amixer", "sget", "Headphone")
+    if stat.success?
+      return "Headphone"
+    end
+
+    out, err, stat = Open3.capture3("amixer", "sget", "Master")
+    if stat.success?
+      return "Master"
+    end
+
+    abort("Couldn't find either Headphone or Master mixers")
   end
 
   def kill_all()
